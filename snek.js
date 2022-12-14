@@ -1,3 +1,26 @@
+const up = document.getElementById("up");
+const down = document.getElementById("down");
+const left = document.getElementById("left");
+const right = document.getElementById("right");
+const space = document.getElementById("space");
+
+
+up.addEventListener("click", (e) => {
+    window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowUp"}))
+});
+down.addEventListener("click", (e) => {
+    window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowDown"}))
+});
+left.addEventListener("click", (e) => {
+    window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowLeft"}))
+});
+right.addEventListener("click", (e) => {
+    window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+});
+space.addEventListener("click", (e) => {
+    window.dispatchEvent(new KeyboardEvent("keydown", {key: " "}))
+});
+
 const distance = (pointA, pointB) => {
     return Math.floor(Math.sqrt((pointA.x - pointB.x) ** 2 + (pointA.y - pointB.y) ** 2));
 }
@@ -78,7 +101,7 @@ class Segment {
 }
 
 class Bullet {
-    constructor(x, y, h, w, direction, ) {
+    constructor(x, y, h, w, direction ) {
         this.x = x;
         this.y = y;
         this.gameHeight = h;
@@ -97,6 +120,15 @@ class Bullet {
         context.fillRect(this.x, this.y, this.height, this.width);
         
     }
+}
+
+class Obstacle {
+    constructor() {
+    }
+
+    update() {}
+    draw() {}
+    randomPosition() {}
 }
 
 class Snek {
@@ -173,7 +205,7 @@ class Snek {
     shoot() {
         const {x, y} = this.head;
         if (this.game.bullets.length === 0) {
-            this.game.bullets.push(new Bullet(x, y, this.game.height, this.game.width, this.game.direction, this.game.bullets.length - 1));
+            this.game.bullets.push(new Bullet(x, y, this.game.height, this.game.width, this.game.direction));
         }
     }
 }

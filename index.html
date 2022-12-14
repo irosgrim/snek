@@ -6,9 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>snek</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="input.css">
 </head>
 <body>
     <canvas id="canvas"></canvas>
+    <nav>
+        <div class="row">
+            <div></div>
+            <button id="up">▲</button>
+            <div></div>
+        </div>
+        <div class="row">
+            <button id="left">◀︎</button>
+            <button class="no-border" id="space">❖</button>
+            <button id="right">►</button>
+        </div>
+        <div class="row">
+            <div></div>
+            <button id="down">▼</button>
+            <div></div>
+        </div>
+    </nav>
+
     <script src="snek.js"></script>
 </body>
 </html>
