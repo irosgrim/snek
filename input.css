@@ -1,5 +1,5 @@
 nav {
-    max-width: 360px;
+    max-width: 240px;
 }
 nav .row {
     display: flex;
@@ -8,8 +8,8 @@ nav .row {
 }
 
 .row button {
-    height: 100px;
-    width: 120px;
+    height: 70px;
+    width: 80px;
     background-color: rgba(43, 45, 49, 0.357);
     border: 1px solid #333333;
     cursor: pointer;
