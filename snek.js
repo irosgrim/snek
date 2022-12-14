@@ -4,9 +4,6 @@ const left = document.getElementById("left");
 const right = document.getElementById("right");
 const space = document.getElementById("space");
 
-document.addEventListener('dblclick', function(event) {
-    event.preventDefault();
-}, { passive: false });
 
 up.addEventListener("click", (e) => {
     window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowUp"}))
@@ -18,7 +15,6 @@ left.addEventListener("click", (e) => {
     window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowLeft"}))
 });
 right.addEventListener("click", (e) => {
-
     window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
 });
 space.addEventListener("click", (e) => {
@@ -63,7 +59,6 @@ class InputHandler {
         window.addEventListener("keydown", e => {
             e.preventDefault();
             this.changeDirection(e.key);
-            debug.innerText = e.key === " " ? "Space" : e.key;
             this.shoot(e.key);
         });
     }
