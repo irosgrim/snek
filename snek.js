@@ -3,6 +3,7 @@ const down = document.getElementById("down");
 const left = document.getElementById("left");
 const right = document.getElementById("right");
 const space = document.getElementById("space");
+const debug = document.getElementById("debug");
 
 
 up.addEventListener("click", (e) => {
@@ -59,6 +60,7 @@ class InputHandler {
         window.addEventListener("keydown", e => {
             e.preventDefault();
             this.changeDirection(e.key);
+            debug.innerText = e.key === " " ? "Space" : e.key;
             this.shoot(e.key);
         });
     }
