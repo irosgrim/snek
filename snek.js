@@ -3,30 +3,25 @@ const down = document.getElementById("down");
 const left = document.getElementById("left");
 const right = document.getElementById("right");
 const space = document.getElementById("space");
-const debug = document.getElementById("debug");
 
+document.addEventListener('dblclick', function(event) {
+    event.preventDefault();
+}, { passive: false });
 
 up.addEventListener("click", (e) => {
-    debug.innerText = "clicked Up";
     window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowUp"}))
 });
 down.addEventListener("click", (e) => {
-    debug.innerText = "clicked Down";
-
     window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowDown"}))
 });
 left.addEventListener("click", (e) => {
-    debug.innerText = "clicked Left";
     window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowLeft"}))
 });
 right.addEventListener("click", (e) => {
-    debug.innerText = "clicked Right";
 
     window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
 });
 space.addEventListener("click", (e) => {
-    debug.innerText = "clicked Space";
-
     window.dispatchEvent(new KeyboardEvent("keydown", {key: " "}))
 });
 

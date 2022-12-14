@@ -1,3 +1,6 @@
+* {
+    touch-action: manipulation;
+}
 nav {
     max-width: 240px;
 }
