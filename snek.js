@@ -7,18 +7,26 @@ const debug = document.getElementById("debug");
 
 
 up.addEventListener("click", (e) => {
+    debug.innerText = "clicked Up";
     window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowUp"}))
 });
 down.addEventListener("click", (e) => {
+    debug.innerText = "clicked Down";
+
     window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowDown"}))
 });
 left.addEventListener("click", (e) => {
+    debug.innerText = "clicked Left";
     window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowLeft"}))
 });
 right.addEventListener("click", (e) => {
+    debug.innerText = "clicked Right";
+
     window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
 });
 space.addEventListener("click", (e) => {
+    debug.innerText = "clicked Space";
+
     window.dispatchEvent(new KeyboardEvent("keydown", {key: " "}))
 });
 
