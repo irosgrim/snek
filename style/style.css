@@ -1,0 +1,15 @@
+body {
+  height: 100vh;
+}
+@font-face {
+  font-family: 'PressStart2P-Regular';
+  src: url("PressStart2P-Regular.ttf") format("truetype");
+}
+
+.container {
+  margin: auto;
+  width: 260px;
+}
+#canvas {
+    border: 1px solid #000000;
+}

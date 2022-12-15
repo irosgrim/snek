@@ -5,29 +5,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>snek</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="input.css">
+    <link rel="stylesheet" href="./style/style.css">
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <nav>
-        <div class="row">
-            <div></div>
-            <button id="up">▲</button>
-            <div></div>
+   <div class="container">
+     <canvas id="canvas"></canvas>
+   </div>
+    <div id="zone_joystick">
+        <div class="zone static">
         </div>
-        <div class="row">
-            <button id="left">◀︎</button>
-            <button class="no-border" id="space">❖</button>
-            <button id="right">►</button>
-        </div>
-        <div class="row">
-            <div></div>
-            <button id="down">▼</button>
-            <div></div>
-        </div>
-    </nav>
-
-    <script src="snek.js"></script>
+    </div>
+    <script src="./src/nipplejs.js"></script>
+    <script src="./src/joystick.js"></script>
+    <script src="./src/snek.js"></script>
 </body>
 </html>
