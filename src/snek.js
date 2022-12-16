@@ -176,9 +176,9 @@ class Snek {
         for (let i = 0; i < this.segments.length; i++) {
             const d = distance(this.head, this.segments[i]);
             if (d === 0) {
-                console.log("ded");
                 this.segments = [];
                 this.game.direction = [0, 0];
+                this.game.score = 0;
             }
         }
     }
