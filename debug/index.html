@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .circle {
+            border-radius: 50%;
+            height: 50px;
+            width: 50px;
+            background-color: rgba(0, 128, 0, 0.506);
+            position: absolute;
+            top: 0;
+            left: 0;
+            visibility: hidden;
+            transition: ease-in;
+        }
+    </style>
+</head>
+<body style="touch-action: none; position: relative">
+    <p> Swipe: <span id="swipe"></span></p>
+    <p>x: <span id="x">0</span></p>
+    <p>y: <span id="y">0</span></p>
+    <div class="circle" id="circle">
+    </div>
+    <script src="debug.js"></script>
+</body>
+</html>
