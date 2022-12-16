@@ -1,15 +1,58 @@
-body {
-  height: 100vh;
-}
 @font-face {
   font-family: 'PressStart2P-Regular';
   src: url("PressStart2P-Regular.ttf") format("truetype");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  font-family: 'Courier New', Courier, monospace;
+  color: #4d4d4d;
+  padding: 1rem;
+  font-size: 13px;
+}
+
+@media (min-width: 480px) {
+  body {
+    padding: 0.5rem;
+  }
+}
+
+ul {
+    list-style-type: none;
+}
+
+.pixel-font {
+    font-family: 'PressStart2P-Regular';
+}
+.small-font {
+  font-size: 8px;
 }
 
 .container {
   margin: auto;
   width: 260px;
 }
+
 #canvas {
     border: 1px solid #000000;
+}
+
+h1 {
+  font-size: 13px;
+}
+
+.d-flex {
+  display: flex;
+}
+.justify-content-between {
+  justify-content: space-between;
+}
+.justify-content-end {
+  justify-content: flex-end;
 }

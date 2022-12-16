@@ -1,3 +1,4 @@
+const score = document.getElementById("score");
 const distance = (pointA, pointB) => {
     return Math.floor(Math.sqrt((pointA.x - pointB.x) ** 2 + (pointA.y - pointB.y) ** 2));
 }
@@ -111,6 +112,7 @@ class Obstacle {
 class Snek {
     constructor(game) {
         this.game = game;
+        this.speed = 0;
         this.head = new Segment(50, 100, this.game.blockSize, this.game.blockSize);
         this.segments = [];
     }
@@ -130,8 +132,8 @@ class Snek {
         if (this.segments.length > 1) {
             this.segments[this.segments.length - 1] = new Segment(head.x, head.y, head.height, head.width)
         }
-        head.x += x * this.game.blockSize;
-        head.y += y * this.game.blockSize;
+        head.x += x * (this.game.blockSize + this.speed);
+        head.y += y * (this.game.blockSize + this.speed);
 
         if(head.x < 0) {
             head.x = this.game.width - 10;
@@ -165,6 +167,7 @@ class Snek {
         const d = distance(food, head)
         if (d === 0) {
             this.segments.push(new Segment(food.x, food.y, head.height, head.width));
+            this.game.score += 1;
             food.randomPosition();
         }
     }
@@ -227,6 +230,7 @@ class Game {
         this.input = new InputHandler(this);
         this.direction = [1, 0];
         this.bullets = [];
+        this.score = 0;
     }
     update() {
         this.snek.update();
@@ -254,11 +258,12 @@ window.addEventListener("load", function() {
 
     const ui = new Ui();
     const game = new Game(canvas.width, canvas.height, blockSize);
+
     function animate () {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ui.draw(ctx);
-        
         game.update();
+        score.innerText = game.score;
         game.draw(ctx);
 
         for(let i=0; i < game.bullets.length; i++) {
