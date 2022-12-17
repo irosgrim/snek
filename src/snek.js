@@ -2,24 +2,29 @@ const score = document.getElementById("score");
 const distance = (pointA, pointB) => {
     return Math.floor(Math.sqrt((pointA.x - pointB.x) ** 2 + (pointA.y - pointB.y) ** 2));
 }
-const randomPosition = (columns = 26, rows = 30, blockSize = 10) => {
+const randomPosition = (rows = 30, columns = 26, blockSize = 10) => {
     const x = Math.floor(Math.random() * columns) * blockSize;
     const y = Math.floor(Math.random() * rows) * blockSize;
     return {x, y}
 }
 
 class Ui {
-    update() {}
+    constructor(blockSize = 10) {
+        this.blockSize = blockSize;
+    }
+    update() {
+        this.blockSize = this.blockSize;
+    }
     grid(context) {
         context.lineWidth = 1;
-        for (let x = 0; x < canvas.width; x+=10) {
+        for (let x = 0; x < canvas.width; x += this.blockSize) {
             context.beginPath();
             context.strokeStyle = "#d3d3d3"
             context.moveTo(x, 0);
             context.lineTo(x, canvas.height);
             context.stroke();
         }
-        for (let y = 0; y < canvas.height; y += 10) {
+        for (let y = 0; y < canvas.height; y += this.blockSize) {
             context.beginPath();
             context.moveTo(0, y);
             context.lineTo(canvas.width, y);
@@ -113,7 +118,7 @@ class Snek {
     constructor(game) {
         this.game = game;
         this.speed = 0;
-        this.head = new Segment(50, 100, this.game.blockSize, this.game.blockSize);
+        this.head = new Segment(5 * this.game.blockSize, 10 * this.game.blockSize, this.game.blockSize, this.game.blockSize);
         this.segments = [];
     }
 
@@ -136,15 +141,15 @@ class Snek {
         head.y += y * (this.game.blockSize + this.speed);
 
         if(head.x < 0) {
-            head.x = this.game.width - 10;
+            head.x = this.game.width - this.game.blockSize;
         }
-        if(head.x > this.game.width - 10) {
+        if(head.x > this.game.width - this.game.blockSize) {
             head.x = 0;
         }
         if(head.y < 0) {
-            head.y = this.game.height - 10;
+            head.y = this.game.height - this.game.blockSize;
         }
-        if(head.y > this.game.height - 10) {
+        if(head.y > this.game.height - this.game.blockSize) {
             head.y = 0;
         }
     }
@@ -205,12 +210,12 @@ class Food {
         context.fill();
     }
     randomPosition() {
-        let {x, y} = randomPosition();
+        let {x, y} = randomPosition(this.game.rows, this.game.columns, this.game.blockSize);
         const snakeSegments = this.game.snek.segments;
         for (const segment of snakeSegments) {
             const d = distance({x, y}, segment);
             if (d === 0) {
-                const newPosition = randomPosition();
+                const newPosition = randomPosition(this.game.rows, this.game.columns, this.game.blockSize);
                 x = newPosition.x;
                 y = newPosition.y;
             }
@@ -221,8 +226,10 @@ class Food {
 }
 
 class Game {
-    constructor(width, height, blockSize) {
+    constructor(rows, columns, width, height, blockSize) {
         this.blockSize = blockSize
+        this.rows = rows;
+        this.columns = columns;
         this.width = width;
         this.height = height
         this.snek = new Snek(this);
@@ -234,7 +241,6 @@ class Game {
     }
     update() {
         this.snek.update();
-        this.food.update();
     }
     draw(context) {
         this.snek.draw(context);
@@ -244,7 +250,7 @@ class Game {
 
 window.addEventListener("load", function() {
     const canvas = document.getElementById("canvas");
-    const blockSize = 10;
+    const blockSize = 12;
     const rows = 30;
     const columns = 26;
     const ctx = canvas.getContext("2d");
@@ -256,8 +262,8 @@ window.addEventListener("load", function() {
     canvas.height = Math.floor((rows * blockSize) * scale);
 
 
-    const ui = new Ui();
-    const game = new Game(canvas.width, canvas.height, blockSize);
+    const ui = new Ui(blockSize);
+    const game = new Game(rows, columns, canvas.width, canvas.height, blockSize);
 
     function animate () {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
