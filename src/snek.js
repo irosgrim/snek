@@ -1,4 +1,5 @@
 const score = document.getElementById("score");
+const rockets = document.getElementById("rockets");
 const distance = (pointA, pointB) => {
     return Math.floor(Math.sqrt((pointA.x - pointB.x) ** 2 + (pointA.y - pointB.y) ** 2));
 }
@@ -84,24 +85,22 @@ class Segment {
 }
 
 class Bullet {
-    constructor(x, y, h, w, direction ) {
+    constructor(x, y, gameObj ) {
         this.x = x;
         this.y = y;
-        this.gameHeight = h;
-        this.gameWidth = w;
-        this.direction = direction  || [1, 0];
         this.height = 8;
         this.width = 8;
+        this.game = gameObj;
     }
-    update() {
-        const [directionX, directionY] = this.direction;
-        this.x += directionX * 40;
-        this.y += directionY * 40;
+    update(deltaTime, stepInterval) {
+        const [directionX, directionY] = this.game.direction;
+        const syncStep = stepInterval/100;
+        this.x += (directionX * (this.game.blockSize/syncStep))/deltaTime;
+        this.y += (directionY * (this.game.blockSize/syncStep))/deltaTime;
     }
     draw(context) {
         context.fillStyle= "black";  
         context.fillRect(this.x, this.y, this.height, this.width);
-        
     }
 }
 
@@ -122,7 +121,7 @@ class Snek {
         this.segments = [];
     }
 
-    update(secondsPassed) {
+    update() {
         const [x, y] = this.game.direction;
         this.die();
         this.eat(this.game.food);
@@ -169,13 +168,33 @@ class Snek {
 
     eat(food) {
         const head = this.head;
-        const d = distance(food, head)
+        const d = distance(food, head);
+        const foodType = food.type;
+        // touched food
         if (d === 0) {
             this.segments.push(new Segment(food.x, food.y, head.height, head.width));
             this.game.score += 1;
             food.randomPosition();
-            if (this.game.stepInterval > 0) {
-                this.game.stepInterval -= 2;
+
+            // check food type
+            switch (foodType) {
+                case "normal":
+                    // increase speed
+                    if (this.game.stepInterval > 0) {
+                        this.game.stepInterval -= 2;
+                    }
+                default:
+                    break;
+                case "decreaseSpeed":
+                    this.game.stepInterval += 10;
+                    break;
+                case "firePower":
+                    this.game.availableBullets = 3;
+                    // increase speed
+                    if (this.game.stepInterval > 0) {
+                        this.game.stepInterval -= 2;
+                    }
+                    break;
             }
         }
     }
@@ -184,17 +203,21 @@ class Snek {
         for (let i = 0; i < this.segments.length; i++) {
             const d = distance(this.head, this.segments[i]);
             if (d === 0) {
-                this.segments = [];
-                this.game.direction = [0, 0];
-                this.game.score = 0;
-                this.game.stepInterval = 100;
+                this.game.reset();
             }
         }
     }
     shoot() {
         const {x, y} = this.head;
         if (this.game.bullets.length === 0) {
-            this.game.bullets.push(new Bullet(x, y, this.game.height, this.game.width, this.game.direction));
+            const gameObj = {
+                direction: this.game.direction,
+                blockSize: this.game.blockSize,
+            }
+            if (this.game.availableBullets > 0) {
+                this.game.bullets.push(new Bullet(x, y, gameObj));
+                this.game.availableBullets -= 1;
+            }
         }
     }
 }
@@ -203,22 +226,42 @@ class Food {
         this.game = game;
         this.x = 0;
         this.y = 0;
+        this.type = "normal";
         this.randomPosition();
     }
     update () {
         
     }
     draw(context) {
-        context.fillStyle= "black";  
-        context.rect(this.x, this.y, this.game.blockSize, this.game.blockSize);
-        context.fill();
+        switch (this.type) {
+            case "normal":
+            default:
+                context.fillStyle= "black";
+                context.rect(this.x, this.y, this.game.blockSize, this.game.blockSize)
+                context.fill();
+                break;
+            case "decreaseSpeed":
+                context.fillStyle = "green";
+                context.rect(this.x, this.y, this.game.blockSize, this.game.blockSize)
+                context.fill();
+                break;
+            case "firePower":
+                // context.fillStyle = "red";
+                context.strokeStyle = "red";
+                context.strokeRect(this.x, this.y, this.game.blockSize, this.game.blockSize)
+                // context.fill();
+                break;
+        }
     }
     randomPosition() {
         let {x, y} = randomPosition(this.game.rows, this.game.columns, this.game.blockSize);
         const snakeSegments = this.game.snek.segments;
+        const food = ["normal", "normal", "normal", "normal", "normal", "normal", "normal", "normal", "normal", "normal", "firePower", "decreaseSpeed"];
+        this.type = food[Math.floor(Math.random() * ((food.length - 1) - 0 + 1)) + 0];
         for (const segment of snakeSegments) {
             const d = distance({x, y}, segment);
             if (d === 0) {
+                console.log(this.type);
                 const newPosition = randomPosition(this.game.rows, this.game.columns, this.game.blockSize);
                 x = newPosition.x;
                 y = newPosition.y;
@@ -226,14 +269,6 @@ class Food {
         }
         this.x = x;
         this.y = y;
-    }
-    foodType() {
-        const food = {
-            normal: {
-                fillStyle: "#000000",
-            },
-            decreaseSpeed: {},
-        }
     }
 }
 
@@ -248,18 +283,27 @@ class Game {
         this.food = new Food(this);
         this.input = new InputHandler(this);
         this.direction = [1, 0];
+        this.availableBullets = 0;
         this.bullets = [];
         this.score = 0;
         this.timeToNextStep = 0;
         this.stepInterval = 100;
         this.lastTime = 0;
     }
-    update(secondsPassed) {
-        this.snek.update(secondsPassed);
+    update() {
+        this.snek.update();
     }
     draw(context) {
         this.snek.draw(context);
         this.food.draw(context);
+    }
+    reset() {
+        this.snek.segments = [];
+        this.direction = [0, 0];
+        this.score = 0;
+        this.stepInterval = 100;
+        this.availableBullets = 0;
+        this.bullets = [];
     }
 }
 
@@ -281,23 +325,28 @@ window.addEventListener("load", function() {
     const game = new Game(rows, columns, canvas.width, canvas.height, blockSize);
 
     function gameLoop (timestamp = 0) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         let deltaTime = timestamp - game.lastTime;
         game.lastTime = timestamp;
         game.timeToNextStep += deltaTime;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ui.draw(ctx);
         game.draw(ctx);
         if(game.timeToNextStep > game.stepInterval) {
-            game.update(deltaTime);
+            game.update();
             game.timeToNextStep = 0;
-        }
-        score.innerText = game.score;
-        for(let i=0; i < game.bullets.length; i++) {
-            const bullet = game.bullets[i];
-            bullet.draw(ctx);
-            bullet.update(deltaTime);
+            score.innerText = game.score;
+            rockets.innerText = game.availableBullets;
             
         }
+        for(let i=0; i < game.bullets.length; i++) {
+            const bullet = game.bullets[i];
+            bullet.update(deltaTime, game.stepInterval);
+            bullet.draw(ctx); 
+            
+        }
+        // if(game.timeToNextStep > 50) {
+            
+        // }
         game.bullets = game.bullets.filter(b => {
             if(b.x > game.width || b.x < 0 || b.y < 0 || b.y > game.height) {
                 return false
