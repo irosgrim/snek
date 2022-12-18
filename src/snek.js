@@ -122,7 +122,7 @@ class Snek {
         this.segments = [];
     }
 
-    update() {
+    update(secondsPassed) {
         const [x, y] = this.game.direction;
         this.die();
         this.eat(this.game.food);
@@ -137,8 +137,8 @@ class Snek {
         if (this.segments.length > 1) {
             this.segments[this.segments.length - 1] = new Segment(head.x, head.y, head.height, head.width)
         }
-        head.x += x * (this.game.blockSize + this.speed);
-        head.y += y * (this.game.blockSize + this.speed);
+        head.x += (x * this.game.blockSize);
+        head.y += (y * this.game.blockSize);
 
         if(head.x < 0) {
             head.x = this.game.width - this.game.blockSize;
@@ -174,6 +174,9 @@ class Snek {
             this.segments.push(new Segment(food.x, food.y, head.height, head.width));
             this.game.score += 1;
             food.randomPosition();
+            if (this.game.stepInterval > 0) {
+                this.game.stepInterval -= 2;
+            }
         }
     }
 
@@ -184,6 +187,7 @@ class Snek {
                 this.segments = [];
                 this.game.direction = [0, 0];
                 this.game.score = 0;
+                this.game.stepInterval = 100;
             }
         }
     }
@@ -223,6 +227,14 @@ class Food {
         this.x = x;
         this.y = y;
     }
+    foodType() {
+        const food = {
+            normal: {
+                fillStyle: "#000000",
+            },
+            decreaseSpeed: {},
+        }
+    }
 }
 
 class Game {
@@ -238,9 +250,12 @@ class Game {
         this.direction = [1, 0];
         this.bullets = [];
         this.score = 0;
+        this.timeToNextStep = 0;
+        this.stepInterval = 100;
+        this.lastTime = 0;
     }
-    update() {
-        this.snek.update();
+    update(secondsPassed) {
+        this.snek.update(secondsPassed);
     }
     draw(context) {
         this.snek.draw(context);
@@ -265,17 +280,22 @@ window.addEventListener("load", function() {
     const ui = new Ui(blockSize);
     const game = new Game(rows, columns, canvas.width, canvas.height, blockSize);
 
-    function animate () {
+    function gameLoop (timestamp = 0) {
+        let deltaTime = timestamp - game.lastTime;
+        game.lastTime = timestamp;
+        game.timeToNextStep += deltaTime;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ui.draw(ctx);
-        game.update();
-        score.innerText = game.score;
         game.draw(ctx);
-
+        if(game.timeToNextStep > game.stepInterval) {
+            game.update(deltaTime);
+            game.timeToNextStep = 0;
+        }
+        score.innerText = game.score;
         for(let i=0; i < game.bullets.length; i++) {
             const bullet = game.bullets[i];
             bullet.draw(ctx);
-            bullet.update();
+            bullet.update(deltaTime);
             
         }
         game.bullets = game.bullets.filter(b => {
@@ -284,10 +304,10 @@ window.addEventListener("load", function() {
             }
             return true;
         })
+        window.requestAnimationFrame(gameLoop);
         
     }
 
-    window.setInterval(animate, 1000/10)
-
+    gameLoop();
 
 })
