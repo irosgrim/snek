@@ -1,5 +1,12 @@
 const score = document.getElementById("score");
 const rockets = document.getElementById("rockets");
+const fireBtn = document.getElementById("fire");
+
+
+fireBtn.addEventListener("click", (e) => {
+    console.log("clicked")
+    window.dispatchEvent(new KeyboardEvent("keydown", {key: " "}))
+})
 const distance = (pointA, pointB) => {
     return Math.floor(Math.sqrt((pointA.x - pointB.x) ** 2 + (pointA.y - pointB.y) ** 2));
 }
@@ -160,8 +167,8 @@ class Bullet {
         const [directionX, directionY] = this.game.direction;
         console.log(this.game.blockSize);
         const syncStep = stepInterval/100;
-        this.x += (directionX * (this.game.blockSize/syncStep)) / deltaTime;
-        this.y += (directionY * (this.game.blockSize/syncStep)) / deltaTime;
+        this.x += (directionX * (this.game.blockSize/syncStep));
+        this.y += (directionY * (this.game.blockSize/syncStep));
     }
     draw(context) {
         context.fillStyle= "black";  
@@ -193,7 +200,7 @@ class Obstacle {
         }
         for (const bullet of this.game.bullets) {
             const d2 = distance(bullet, this);
-            if (d2 <= 0) {
+            if (d2 === 0) {
                 this.game.obstacles.splice(this.index, 1);
                 this.game.bullets = [];
             }
@@ -451,11 +458,16 @@ window.addEventListener("load", function() {
             game.timeToNextStep = 0;
             score.innerText = game.score;
             rockets.innerText = game.availableBullets;
+            if (game.availableBullets > 0) {
+                fireBtn.style.visibility = "visible";
+            } else {
+                fireBtn.style.visibility = "hidden";
+            }
             
         }
         for(let i=0; i < game.bullets.length; i++) {
             const bullet = game.bullets[i];
-            bullet.update(deltaTime, game.stepInterval);
+            bullet.update(game.timeToNextStep, game.stepInterval);
             bullet.draw(ctx); 
             
         }

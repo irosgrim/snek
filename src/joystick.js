@@ -29,7 +29,7 @@ function createNipple(type) {
   const options = {
     mode: 'dynamic',
     color: '#ababab',
-    multitouch: true
+    multitouch: false
   }
   joystick = nipplejs.create(options);
   bindNipple();
