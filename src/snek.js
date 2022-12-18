@@ -9,6 +9,70 @@ const randomPosition = (rows = 30, columns = 26, blockSize = 10) => {
     return {x, y}
 }
 
+const obstacles = [
+    [
+        [15, 15],
+        [15, 16],
+        [15, 17],
+        [15, 18],
+        [15, 19],
+        [15, 20],
+    ],
+    [
+        [25, 15],
+        [25, 16],
+        [25, 17],
+        [25, 18],
+        [25, 19],
+        [25, 20],
+        [25, 21],
+        [25, 22],
+        [24, 22],
+        [23, 22],
+        [22, 22],
+    ],
+     [
+        [15, 26],
+        [16, 26],
+        [17, 26],
+        [18, 26],
+        [19, 26],
+        [20, 26],
+        [21, 26],
+        [22, 26],
+        [23, 26],
+        [24, 26],
+        [25, 26],
+    ],
+    [
+        [25, 26],
+        [26, 26],
+        [27, 26],
+        [28, 26],
+        [29, 26],
+        [30, 26],
+        [31, 26],
+        [32, 26],
+        [32, 27],
+        [32, 28],
+        [32, 29],
+    ],
+    [
+        [2, 26],
+        [3, 26],
+        [4, 26],
+        [5, 26],
+        [6, 26],
+        [7, 26],
+        [8, 26],
+        [9, 26],
+        [10, 27],
+        [11, 28],
+        [12, 29],
+    ]
+
+];
+
 class Ui {
     constructor(blockSize = 10) {
         this.blockSize = blockSize;
@@ -94,9 +158,10 @@ class Bullet {
     }
     update(deltaTime, stepInterval) {
         const [directionX, directionY] = this.game.direction;
+        console.log(this.game.blockSize);
         const syncStep = stepInterval/100;
-        this.x += (directionX * (this.game.blockSize/syncStep))/deltaTime;
-        this.y += (directionY * (this.game.blockSize/syncStep))/deltaTime;
+        this.x += (directionX * (this.game.blockSize/syncStep)) / deltaTime;
+        this.y += (directionY * (this.game.blockSize/syncStep)) / deltaTime;
     }
     draw(context) {
         context.fillStyle= "black";  
@@ -105,12 +170,35 @@ class Bullet {
 }
 
 class Obstacle {
-    constructor() {
+    constructor(x, y, gameObj) {
+        this.x = x;
+        this.y = y;
+        this.index = 0;
+        this.game = gameObj;
     }
 
-    update() {}
-    draw() {}
+    draw(context) {
+        context.lineWidth = 2;
+        context.strokeStyle = "#000000";
+        context.strokeRect(this.x, this.y, this.game.blockSize, this.game.blockSize);
+    }
+    update() {
+        this.handleCollision();
+    }
     randomPosition() {}
+    handleCollision() {
+        const d = distance(this.game.snek.head, this);
+        if (d <= 0) {
+            this.game.reset();
+        }
+        for (const bullet of this.game.bullets) {
+            const d2 = distance(bullet, this);
+            if (d2 <= 0) {
+                this.game.obstacles.splice(this.index, 1);
+                this.game.bullets = [];
+            }
+        }
+    }
 }
 
 class Snek {
@@ -258,10 +346,21 @@ class Food {
         const snakeSegments = this.game.snek.segments;
         const food = ["normal", "normal", "normal", "normal", "normal", "normal", "normal", "normal", "normal", "normal", "firePower", "decreaseSpeed"];
         this.type = food[Math.floor(Math.random() * ((food.length - 1) - 0 + 1)) + 0];
+        // avoid spawning food on snake segments
         for (const segment of snakeSegments) {
             const d = distance({x, y}, segment);
             if (d === 0) {
-                console.log(this.type);
+                const newPosition = randomPosition(this.game.rows, this.game.columns, this.game.blockSize);
+                x = newPosition.x;
+                y = newPosition.y;
+            }
+        }
+
+        // avoid spawning food on obstacles
+        const obstacles = this.game.obstacles;
+        for (const obstacle of obstacles) {
+            const d = distance({x, y}, obstacle);
+            if (d === 0) {
                 const newPosition = randomPosition(this.game.rows, this.game.columns, this.game.blockSize);
                 x = newPosition.x;
                 y = newPosition.y;
@@ -279,16 +378,19 @@ class Game {
         this.columns = columns;
         this.width = width;
         this.height = height
+        this.obstacles = this.createObstacles();
         this.snek = new Snek(this);
         this.food = new Food(this);
         this.input = new InputHandler(this);
         this.direction = [1, 0];
-        this.availableBullets = 0;
+        this.availableBullets = 100;
         this.bullets = [];
         this.score = 0;
         this.timeToNextStep = 0;
         this.stepInterval = 100;
         this.lastTime = 0;
+        
+        
     }
     update() {
         this.snek.update();
@@ -296,6 +398,15 @@ class Game {
     draw(context) {
         this.snek.draw(context);
         this.food.draw(context);
+    }
+    createObstacles() {
+        const firstObstacleIndex = Math.floor(Math.random() * ((obstacles.length - 1) - 0 + 1)) + 0;
+        let secondObstacleIndex = Math.floor(Math.random() * ((obstacles.length - 1) - 0 + 1)) + 0;
+
+        while (firstObstacleIndex === secondObstacleIndex) {
+            secondObstacleIndex = Math.floor(Math.random() * ((obstacles.length - 1) - 0 + 1)) + 0;
+        }
+        return [...obstacles[firstObstacleIndex].map(o => new Obstacle(o[0] * this.blockSize, o[1] * this.blockSize, this)), ...obstacles[secondObstacleIndex].map(o => new Obstacle(o[0] * this.blockSize, o[1] * this.blockSize, this))]
     }
     reset() {
         this.snek.segments = [];
@@ -331,6 +442,10 @@ window.addEventListener("load", function() {
         game.timeToNextStep += deltaTime;
         ui.draw(ctx);
         game.draw(ctx);
+        for(const [index, obstacle] of game.obstacles.entries()) {
+            obstacle.index = index;
+            obstacle.draw(ctx);
+        }
         if(game.timeToNextStep > game.stepInterval) {
             game.update();
             game.timeToNextStep = 0;
@@ -344,9 +459,9 @@ window.addEventListener("load", function() {
             bullet.draw(ctx); 
             
         }
-        // if(game.timeToNextStep > 50) {
-            
-        // }
+        for(const obstacle of game.obstacles) {
+            obstacle.update();
+        }
         game.bullets = game.bullets.filter(b => {
             if(b.x > game.width || b.x < 0 || b.y < 0 || b.y > game.height) {
                 return false
