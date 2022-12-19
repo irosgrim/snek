@@ -281,7 +281,11 @@ class Snek {
                 default:
                     break;
                 case "decreaseSpeed":
-                    this.game.stepInterval += 10;
+                    if (this.game.stepInterval > 50) {
+                        this.game.stepInterval += 1;
+                    } else {
+                        this.game.stepInterval += 2;
+                    }
                     break;
                 case "firePower":
                     this.game.availableBullets = 3;
