@@ -163,11 +163,10 @@ class Bullet {
         this.width = gameObj.blockSize;
         this.game = gameObj;
     }
-    update(deltaTime, stepInterval) {
+    update() {
         const [directionX, directionY] = this.game.direction;
-        const syncStep = stepInterval/100;
-        this.x += (directionX * ((syncStep * (2 * this.game.blockSize))/this.game.blockSize));
-        this.y += (directionY * ((syncStep * (2 * this.game.blockSize))/this.game.blockSize));
+        this.x += (directionX * (this.game.blockSize + (this.game.blockSize / 4)));
+        this.y += (directionY * (this.game.blockSize + (this.game.blockSize / 4)));
     }
     draw(context) {
         context.fillStyle= "black";
@@ -197,13 +196,15 @@ class Obstacle {
     }
     randomPosition() {}
     handleCollision() {
+        // snek head collision
         const d = distance(this.game.snek.head, this);
-        if (d <= 0) {
+        if (d < this.game.blockSize) {
             this.game.reset();
         }
+        // bullet collision
         for (const bullet of this.game.bullets) {
             const d2 = distance(bullet, this);
-            if (d2 <= 8) {
+            if (d2 <= this.game.blockSize/2) {
                 this.game.obstacles.splice(this.index, 1);
                 this.game.bullets = [];
             }
@@ -406,7 +407,7 @@ class Game {
         this.food = new Food(this);
         this.input = new InputHandler(this);
         this.direction = [1, 0];
-        this.availableBullets = 100;
+        this.availableBullets = 0;
         this.score = 0;
         this.timeToNextStep = 0;
         this.stepInterval = 100;
@@ -420,6 +421,17 @@ class Game {
         for(const obstacle of this.obstacles) {
             obstacle.update();
         }
+        for(let i=0; i < this.bullets.length; i++) {
+            const bullet = this.bullets[i];
+            bullet.update();
+        }
+       
+        this.bullets = this.bullets.filter(b => {
+            if(b.x > this.width || b.x < 0 || b.y < 0 || b.y > this.height) {
+                return false
+            }
+            return true;
+        })
     }
     draw(context) {
         this.snek.draw(context);
@@ -427,6 +439,10 @@ class Game {
         for(const [index, obstacle] of this.obstacles.entries()) {
             obstacle.index = index;
             obstacle.draw(context);
+        }
+        for(let i=0; i < this.bullets.length; i++) {
+            const bullet = this.bullets[i];
+            bullet.draw(context); 
         }
     }
     createObstacles() {
@@ -489,19 +505,6 @@ window.addEventListener("load", function() {
             }
             
         }
-        for(let i=0; i < game.bullets.length; i++) {
-            const bullet = game.bullets[i];
-            bullet.update(game.timeToNextStep, game.stepInterval);
-            bullet.draw(ctx); 
-            
-        }
-       
-        game.bullets = game.bullets.filter(b => {
-            if(b.x > game.width || b.x < 0 || b.y < 0 || b.y > game.height) {
-                return false
-            }
-            return true;
-        })
         window.requestAnimationFrame(gameLoop);
         
     }
