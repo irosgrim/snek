@@ -159,20 +159,23 @@ class Bullet {
     constructor(x, y, gameObj ) {
         this.x = x;
         this.y = y;
-        this.height = 8;
-        this.width = 8;
+        this.height = gameObj.blockSize;
+        this.width = gameObj.blockSize;
         this.game = gameObj;
     }
     update(deltaTime, stepInterval) {
         const [directionX, directionY] = this.game.direction;
-        console.log(this.game.blockSize);
         const syncStep = stepInterval/100;
-        this.x += (directionX * ((syncStep * 20)/this.game.blockSize));
-        this.y += (directionY * ((syncStep * 20)/this.game.blockSize));
+        this.x += (directionX * ((syncStep * (2 * this.game.blockSize))/this.game.blockSize));
+        this.y += (directionY * ((syncStep * (2 * this.game.blockSize))/this.game.blockSize));
     }
     draw(context) {
-        context.fillStyle= "black";  
+        context.fillStyle= "black";
         context.fillRect(this.x, this.y, this.height, this.width);
+        context.strokeStyle = "white";
+        context.lineWidth = 4;
+        context.strokeRect(this.x, this.y, this.height, this.width);
+
     }
 }
 
@@ -200,7 +203,7 @@ class Obstacle {
         }
         for (const bullet of this.game.bullets) {
             const d2 = distance(bullet, this);
-            if (d2 === 0) {
+            if (d2 <= 8) {
                 this.game.obstacles.splice(this.index, 1);
                 this.game.bullets = [];
             }
@@ -282,9 +285,9 @@ class Snek {
                     break;
                 case "decreaseSpeed":
                     if (this.game.stepInterval > 50) {
-                        this.game.stepInterval += 1;
-                    } else {
                         this.game.stepInterval += 2;
+                    } else {
+                        this.game.stepInterval += 10;
                     }
                     break;
                 case "firePower":
@@ -329,7 +332,16 @@ class Food {
         this.randomPosition();
     }
     update () {
-        
+         // check bullet impact
+        const bullets = this.game.bullets;
+        for (const bullet of bullets) {
+            const d = distance({x: this.x, y: this.y}, bullet);
+            console.log(d)
+            if (d <= 10) {
+                this.randomPosition();
+                this.game.bullets = [];
+            }
+        }
     }
     draw(context) {
         switch (this.type) {
@@ -366,7 +378,6 @@ class Food {
                 y = newPosition.y;
             }
         }
-
         // avoid spawning food on obstacles
         const obstacles = this.game.obstacles;
         for (const obstacle of obstacles) {
@@ -390,12 +401,12 @@ class Game {
         this.width = width;
         this.height = height
         this.obstacles = this.createObstacles();
+        this.bullets = [];
         this.snek = new Snek(this);
         this.food = new Food(this);
         this.input = new InputHandler(this);
         this.direction = [1, 0];
-        this.availableBullets = 0;
-        this.bullets = [];
+        this.availableBullets = 100;
         this.score = 0;
         this.timeToNextStep = 0;
         this.stepInterval = 100;
@@ -405,10 +416,18 @@ class Game {
     }
     update() {
         this.snek.update();
+        this.food.update();
+        for(const obstacle of this.obstacles) {
+            obstacle.update();
+        }
     }
     draw(context) {
         this.snek.draw(context);
         this.food.draw(context);
+        for(const [index, obstacle] of this.obstacles.entries()) {
+            obstacle.index = index;
+            obstacle.draw(context);
+        }
     }
     createObstacles() {
         const firstObstacleIndex = Math.floor(Math.random() * ((obstacles.length - 1) - 0 + 1)) + 0;
@@ -426,6 +445,10 @@ class Game {
         this.stepInterval = 100;
         this.availableBullets = 0;
         this.bullets = [];
+        this.snek.head.x += 5*this.blockSize;
+        this.snek.head.y += 3*this.blockSize;
+        this.createObstacles();
+        this.update()
     }
 }
 
@@ -453,10 +476,7 @@ window.addEventListener("load", function() {
         game.timeToNextStep += deltaTime;
         ui.draw(ctx);
         game.draw(ctx);
-        for(const [index, obstacle] of game.obstacles.entries()) {
-            obstacle.index = index;
-            obstacle.draw(ctx);
-        }
+       
         if(game.timeToNextStep > game.stepInterval) {
             game.update();
             game.timeToNextStep = 0;
@@ -475,9 +495,7 @@ window.addEventListener("load", function() {
             bullet.draw(ctx); 
             
         }
-        for(const obstacle of game.obstacles) {
-            obstacle.update();
-        }
+       
         game.bullets = game.bullets.filter(b => {
             if(b.x > game.width || b.x < 0 || b.y < 0 || b.y > game.height) {
                 return false
