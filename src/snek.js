@@ -390,7 +390,7 @@ class Game {
         this.food = new Food(this);
         this.input = new InputHandler(this);
         this.direction = [1, 0];
-        this.availableBullets = 100;
+        this.availableBullets = 0;
         this.bullets = [];
         this.score = 0;
         this.timeToNextStep = 0;
