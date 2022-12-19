@@ -11,16 +11,21 @@
     <div class="container">
         <h1 class="pixel-font">Snek</h1>
         <div class="d-flex justify-content-between px-2">
-            <p class="pixel-font small-font">Rockets: <span id="rockets">0</span></p>
-            <p class="pixel-font small-font" id="score">00</p>
         </div>
-        <canvas id="canvas"></canvas>
+        <div class="main">
+            <div class="stats">
+                <p class="pixel-font small-font">Rockets: <span id="rockets">0</span></p>
+                <p class="pixel-font small-font">Speed: <span id="speed">0</span></p>
+                <p class="pixel-font small-font">Score: <span id="score">0</span></p>
+            </div>
+            <canvas id="canvas"></canvas>
+        </div>
         <div>
             <ul>
                 <li>&leftarrow; &uparrow; &downarrow; &rightarrow; keys or swipe to change direction</li>
             </ul>
         </div>
-        <button id="fire" style="position: absolute; z-index: 1000; left: 0; height: 80px; width: 80px; border-radius: 50%; background-color: rgba(100, 100, 100, 0.357); border: none;">fire</button>
+        <button id="fire" class="fire">fire</button>
    </div>
    <div>
    </div>

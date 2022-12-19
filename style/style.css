@@ -39,6 +39,7 @@ ul {
 
 .container {
   max-width: 315px;
+  position: relative;
 }
 
 #canvas {
@@ -62,4 +63,26 @@ h1 {
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+}
+.main {
+}
+.stats {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid #000000;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  width: 312px;
+}
+.fire {
+  position: absolute; 
+  z-index: 1000; 
+  left: 0; 
+  height: 80px; 
+  width: 80px; 
+  border-radius: 50%; 
+  background-color: rgba(32, 33, 36, 0.503);
+  border: none;
+  border: 4px solid rgba(0, 0, 0, 0.422);
+  color: #000000;
 }

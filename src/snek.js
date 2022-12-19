@@ -1,6 +1,7 @@
 const score = document.getElementById("score");
 const rockets = document.getElementById("rockets");
 const fireBtn = document.getElementById("fire");
+const speed = document.getElementById("speed");
 
 
 fireBtn.addEventListener("click", (e) => {
@@ -274,21 +275,24 @@ class Snek {
             this.segments.push(new Segment(food.x, food.y, head.height, head.width));
             this.game.score += 1;
             food.randomPosition();
-
+            const s = +speed.innerText;
             // check food type
             switch (foodType) {
                 case "normal":
                     // increase speed
                     if (this.game.stepInterval > 0) {
                         this.game.stepInterval -= 2;
+                        speed.innerText = s + 1;
                     }
                 default:
                     break;
                 case "decreaseSpeed":
                     if (this.game.stepInterval > 50) {
                         this.game.stepInterval += 2;
+                        speed.innerText = s - 1;
                     } else {
                         this.game.stepInterval += 10;
+                        speed.innerText = s - 5;
                     }
                     break;
                 case "firePower":
@@ -296,6 +300,7 @@ class Snek {
                     // increase speed
                     if (this.game.stepInterval > 0) {
                         this.game.stepInterval -= 2;
+                        speed.innerText = s + 1;
                     }
                     break;
             }
@@ -407,7 +412,7 @@ class Game {
         this.food = new Food(this);
         this.input = new InputHandler(this);
         this.direction = [1, 0];
-        this.availableBullets = 0;
+        this.availableBullets = 100;
         this.score = 0;
         this.timeToNextStep = 0;
         this.stepInterval = 100;
@@ -463,6 +468,7 @@ class Game {
         this.bullets = [];
         this.snek.head.x += 5*this.blockSize;
         this.snek.head.y += 3*this.blockSize;
+        speed.innerText = 0;
         this.createObstacles();
         this.update()
     }
