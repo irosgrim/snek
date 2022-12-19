@@ -167,8 +167,8 @@ class Bullet {
         const [directionX, directionY] = this.game.direction;
         console.log(this.game.blockSize);
         const syncStep = stepInterval/100;
-        this.x += (directionX * (this.game.blockSize/syncStep));
-        this.y += (directionY * (this.game.blockSize/syncStep));
+        this.x += (directionX * ((syncStep * 20)/this.game.blockSize));
+        this.y += (directionY * ((syncStep * 20)/this.game.blockSize));
     }
     draw(context) {
         context.fillStyle= "black";  
