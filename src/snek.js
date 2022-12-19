@@ -412,7 +412,7 @@ class Game {
         this.food = new Food(this);
         this.input = new InputHandler(this);
         this.direction = [1, 0];
-        this.availableBullets = 100;
+        this.availableBullets = 0;
         this.score = 0;
         this.timeToNextStep = 0;
         this.stepInterval = 100;
