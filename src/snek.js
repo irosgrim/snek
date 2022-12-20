@@ -2,7 +2,9 @@ const score = document.getElementById("score");
 const rockets = document.getElementById("rockets");
 const fireBtn = document.getElementById("fire");
 const speed = document.getElementById("speed");
-
+const getRandomInt = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 fireBtn.addEventListener("click", (e) => {
     console.log("clicked")
@@ -16,70 +18,6 @@ const randomPosition = (rows = 30, columns = 26, blockSize = 10) => {
     const y = Math.floor(Math.random() * rows) * blockSize;
     return {x, y}
 }
-
-const obstacles = [
-    [
-        [15, 15],
-        [15, 16],
-        [15, 17],
-        [15, 18],
-        [15, 19],
-        [15, 20],
-    ],
-    [
-        [25, 15],
-        [25, 16],
-        [25, 17],
-        [25, 18],
-        [25, 19],
-        [25, 20],
-        [25, 21],
-        [25, 22],
-        [24, 22],
-        [23, 22],
-        [22, 22],
-    ],
-     [
-        [15, 26],
-        [16, 26],
-        [17, 26],
-        [18, 26],
-        [19, 26],
-        [20, 26],
-        [21, 26],
-        [22, 26],
-        [23, 26],
-        [24, 26],
-        [25, 26],
-    ],
-    [
-        [25, 26],
-        [26, 26],
-        [27, 26],
-        [28, 26],
-        [29, 26],
-        [30, 26],
-        [31, 26],
-        [32, 26],
-        [32, 27],
-        [32, 28],
-        [32, 29],
-    ],
-    [
-        [2, 26],
-        [3, 26],
-        [4, 26],
-        [5, 26],
-        [6, 26],
-        [7, 26],
-        [8, 26],
-        [9, 26],
-        [10, 27],
-        [11, 28],
-        [12, 29],
-    ]
-
-];
 
 class Ui {
     constructor(blockSize = 10) {
@@ -206,6 +144,7 @@ class Obstacle {
         for (const bullet of this.game.bullets) {
             const d2 = distance(bullet, this);
             if (d2 <= this.game.blockSize/2) {
+                this.game.score += 2;
                 this.game.obstacles.splice(this.index, 1);
                 this.game.bullets = [];
             }
@@ -450,13 +389,20 @@ class Game {
         }
     }
     createObstacles() {
-        const firstObstacleIndex = Math.floor(Math.random() * ((obstacles.length - 1) - 0 + 1)) + 0;
-        let secondObstacleIndex = Math.floor(Math.random() * ((obstacles.length - 1) - 0 + 1)) + 0;
-
-        while (firstObstacleIndex === secondObstacleIndex) {
-            secondObstacleIndex = Math.floor(Math.random() * ((obstacles.length - 1) - 0 + 1)) + 0;
+        const randomIndex = getRandomInt(0, obstacles.length - 1);
+        const obstacle = obstacles[randomIndex];
+        const startX = 10;
+        const startY = 10;
+        const o = [];
+        for (let row = 0; row < obstacle.length; row++) {
+            for(let column = 0; column < obstacle[row].length; column++) {
+                if(obstacle[row][column] === "x") {
+                    const newObstacle = new Obstacle((column + startX) * this.blockSize, (row + startY) * this.blockSize, this)
+                    o.push(newObstacle)
+                }
+            }
         }
-        return [...obstacles[firstObstacleIndex].map(o => new Obstacle(o[0] * this.blockSize, o[1] * this.blockSize, this)), ...obstacles[secondObstacleIndex].map(o => new Obstacle(o[0] * this.blockSize, o[1] * this.blockSize, this))]
+        return o;
     }
     reset() {
         this.snek.segments = [];
