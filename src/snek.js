@@ -342,7 +342,6 @@ class Food {
         const bullets = this.game.bullets;
         for (const bullet of bullets) {
             const d = distance({x: this.x, y: this.y}, bullet);
-            console.log(d)
             if (d <= 10) {
                 this.randomPosition();
                 this.game.bullets = [];
