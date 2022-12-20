@@ -1,10 +1,47 @@
+const getRandomInt = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+const img = new Image();
+img.src = `./src/imgs/${getRandomInt(0, 10)}.png`;
+const obstcl = [];
+img.addEventListener("load", () => {
+    const loadImageCanvas = document.getElementById("load-image-canvas");
+    const ctx2 = loadImageCanvas.getContext("2d");
+    
+    loadImageCanvas.width = img.width;
+    loadImageCanvas.height = img.height;
+    
+    ctx2.drawImage(img, 0, 0);
+    
+    const imageData = ctx2.getImageData(0, 0, canvas.width, canvas.height);
+
+    const pixels = imageData.data;
+    const w = imageData.width;
+    const h = imageData.height;
+
+    const l = w * h;
+    for (let i = 0; i < l; i++) {
+        // get color of pixel
+        const r = pixels[i*4]; // Red
+        const g = pixels[i*4+1]; // Green
+        const b = pixels[i*4+2]; // Blue
+        // const a = pixels[i*4+3]; // Alpha
+        if (r === 0 && g === 0 && b === 0) {
+            const y = parseInt(i / w, 10);
+            const x = i - y * w;
+            obstcl.push({x, y});
+        }
+        // get the position of pixel
+    }
+});
+
+
 const score = document.getElementById("score");
 const rockets = document.getElementById("rockets");
 const fireBtn = document.getElementById("fire");
 const speed = document.getElementById("speed");
-const getRandomInt = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+
 
 fireBtn.addEventListener("click", (e) => {
     console.log("clicked")
@@ -350,7 +387,7 @@ class Game {
         this.food = new Food(this);
         this.input = new InputHandler(this);
         this.direction = [1, 0];
-        this.availableBullets = 0;
+        this.availableBullets = 3;
         this.score = 0;
         this.timeToNextStep = 0;
         this.stepInterval = 100;
@@ -388,21 +425,13 @@ class Game {
             bullet.draw(context); 
         }
     }
+    
     createObstacles() {
-        const randomIndex = getRandomInt(0, obstacles.length - 1);
-        const obstacle = obstacles[randomIndex];
-        const startX = 10;
-        const startY = 10;
-        const o = [];
-        for (let row = 0; row < obstacle.length; row++) {
-            for(let column = 0; column < obstacle[row].length; column++) {
-                if(obstacle[row][column] === "x") {
-                    const newObstacle = new Obstacle((column + startX) * this.blockSize, (row + startY) * this.blockSize, this)
-                    o.push(newObstacle)
-                }
-            }
+        const obs = [];
+        for (const o of obstcl) {
+            obs.push(new Obstacle(o.x * this.blockSize, o.y * this.blockSize, this))
         }
-        return o;
+        return obs;
     }
     reset() {
         this.snek.segments = [];
