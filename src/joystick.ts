@@ -1,42 +1,44 @@
+import { Coord } from "./types";
+
 class VirtualJoyStick {
-  constructor(options) {
+  options: any = {};
+  swipe: string = "";
+  touchStartCenter: Coord = {
+    x: 0,
+    y: 0,
+  };
+  touchEndCenter: Coord = {
+    x: 0,
+    y: 0,
+  };
+  el = {
+    id: "circle",
+    style: {
+      top: "0",
+      left: "0",
+      size: 50,
+      color: "#333333",
+      opacity: "0.5",
+      position: "absolute",
+    }
+  };
+  threshold = 5;
+  move: Coord = {
+    x: 0,
+    y: 0,
+  }
+  readableDirection = "center";
+  direction: Coord = {
+    x: 0,
+    y: 0,
+  }
+  isTouching = false;
+  constructor(options?: any) {
     this.options = options || {};
-    this.swipe = "";
-    this.touchStartCenter = {
-      x: 0,
-      y: 0,
-    };
-    this.touchEndCenter = {
-      x: 0,
-      y: 0,
-    }
-    this.el = {
-      id: "circle",
-      style: {
-        top: 0,
-        left: 0,
-        size: 50,
-        color: "#333333",
-        opacity: 0.5,
-        position: "absolute",
-      }
-    }
-    this.threshold = 5;
-    this.move = {
-      x: 0,
-      y: 0,
-    }
-    this.readableDirection = "center";
-    // diagonal direction
-    this.direction = {
-      x: 0,
-      y: 0,
-    }
-    this.isTouching = false;
     this.createJoystickBg();
     this.createJoystickElement();
   }
-  distance (p1, p2) {
+  distance (p1: Coord, p2: Coord) {
     let dx = p2.x - p1.x;
     let dy = p2.y - p1.y;
     return Math.sqrt((dx * dx) + (dy * dy));
@@ -60,8 +62,8 @@ class VirtualJoyStick {
   createJoystickBg () {
     const div = document.createElement("div");
     div.setAttribute("id", "joy_bg");
-    div.style.top = 0;
-    div.style.left = 0;
+    div.style.top = "0";
+    div.style.left = "0";
     div.style.width = "70px";
     div.style.height = "70px";
     div.style.backgroundColor = "#cccccc";
@@ -98,30 +100,32 @@ class VirtualJoyStick {
 
       document.addEventListener('touchstart', e => {
         e.preventDefault();
-        this.isTouching = true;
-        touchRadius.x = e.touches[0].radiusX;
-        touchRadius.y = e.touches[0].radiusY;
+        if (circle && circleBg) {
+          this.isTouching = true;
+          touchRadius.x = e.touches[0].radiusX;
+          touchRadius.y = e.touches[0].radiusY;
 
-        const touchStartX = e.changedTouches[0].pageX - bigCircleRadius - touchRadius.x;
-        const touchStartY = e.changedTouches[0].pageY - bigCircleRadius - touchRadius.y;
+          const touchStartX = e.changedTouches[0].pageX - bigCircleRadius - touchRadius.x;
+          const touchStartY = e.changedTouches[0].pageY - bigCircleRadius - touchRadius.y;
 
-        this.touchStartCenter.x = touchStartX;
-        this.touchStartCenter.y = touchStartY;
+          this.touchStartCenter.x = touchStartX;
+          this.touchStartCenter.y = touchStartY;
 
-        startX = e.changedTouches[0].screenX;
-        startY = e.changedTouches[0].screenY;
+          startX = e.changedTouches[0].screenX;
+          startY = e.changedTouches[0].screenY;
 
-        document.body.style.overflow = "hidden";
-        circle.style.visibility = "visible";
-        circle.style.top = e.changedTouches[0].pageY - smallCircleRadius - touchRadius.y + "px";
-        circle.style.left = e.changedTouches[0].pageX - smallCircleRadius - touchRadius.x + "px";
-        
-        circleBg.style.visibility = "visible";
-        circleBg.style.top = touchStartY + "px";
-        circleBg.style.left = touchStartX + "px";
+          document.body.style.overflow = "hidden";
+          circle.style.visibility = "visible";
+          circle.style.top = e.changedTouches[0].pageY - smallCircleRadius - touchRadius.y + "px";
+          circle.style.left = e.changedTouches[0].pageX - smallCircleRadius - touchRadius.x + "px";
+          
+          circleBg.style.visibility = "visible";
+          circleBg.style.top = touchStartY + "px";
+          circleBg.style.left = touchStartX + "px";
 
-        this.dispatchEvent();
-        this.showDebug();
+          this.dispatchEvent();
+          this.showDebug();
+        }
         
       })
 
@@ -206,12 +210,14 @@ class VirtualJoyStick {
       });
 
       document.addEventListener('touchend', e => {
-        document.body.style.overflow = "auto";
-        circle.style.visibility = "hidden"
-        circleBg.style.visibility = "hidden"
-        this.isTouching = false;
-        this.dispatchEvent();
-        this.showDebug();
+        if (circle && circleBg) {
+          document.body.style.overflow = "auto";
+          circle.style.visibility = "hidden"
+          circleBg.style.visibility = "hidden"
+          this.isTouching = false;
+          this.dispatchEvent();
+          this.showDebug();
+        }
       })
     }
   }
@@ -238,7 +244,7 @@ class VirtualJoyStick {
     window.dispatchEvent(new CustomEvent("v-joystick", {detail: this.eventPayload}));
   }
 
-  get eventPayload() {
+  get eventPayload(): {[key: string]: any} {
     return {
       move: this.move,
       direction: this.direction,
@@ -247,3 +253,5 @@ class VirtualJoyStick {
     };
   }
 }
+
+export default VirtualJoyStick;

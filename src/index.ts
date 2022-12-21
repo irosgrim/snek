@@ -1,38 +1,61 @@
-const getRandomInt = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+import "./style.css";
+import VirtualJoyStick from "./joystick";
+import { Coord, DirectionKeys } from "./types";
+import { getRandomInt } from "./utils";
+
+const joy = new VirtualJoyStick();
+joy.init();
+
+window.addEventListener("v-joystick", (e: any) => {
+  const { x, y } = e.detail.move;
+  if (y < 0) {
+        window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowUp"}))
+      }
+  if (y > 0) {
+    window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowDown"}))
+  }
+  if (x < 0) {
+    window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowLeft"}))
+  }
+  if (x > 0) {
+    window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}))
+  }
+})
+
+
+const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
 const img = new Image();
 img.src = `./src/imgs/${getRandomInt(0, 10)}.png`;
-const obstcl = [];
+const obstcl: Coord[] = [];
+
 img.addEventListener("load", () => {
-    const loadImageCanvas = document.getElementById("load-image-canvas");
-    const ctx2 = loadImageCanvas.getContext("2d");
+    const loadImageCanvas = document.getElementById("load-image-canvas") as HTMLCanvasElement;
+    const ctx2 = loadImageCanvas && loadImageCanvas.getContext("2d");
     
-    loadImageCanvas.width = img.width;
-    loadImageCanvas.height = img.height;
+    if (ctx2) {
+        loadImageCanvas.width = img.width;
+        loadImageCanvas.height = img.height;
+        ctx2.drawImage(img, 0, 0);
+        const imageData = ctx2.getImageData(0, 0, canvas.width, canvas.height);
     
-    ctx2.drawImage(img, 0, 0);
+        const pixels = imageData.data;
+        const w = imageData.width;
+        const h = imageData.height;
     
-    const imageData = ctx2.getImageData(0, 0, canvas.width, canvas.height);
-
-    const pixels = imageData.data;
-    const w = imageData.width;
-    const h = imageData.height;
-
-    const l = w * h;
-    for (let i = 0; i < l; i++) {
-        // get color of pixel
-        const r = pixels[i*4]; // Red
-        const g = pixels[i*4+1]; // Green
-        const b = pixels[i*4+2]; // Blue
-        // const a = pixels[i*4+3]; // Alpha
-        if (r === 0 && g === 0 && b === 0) {
-            const y = parseInt(i / w, 10);
-            const x = i - y * w;
-            obstcl.push({x, y});
+        const l = w * h;
+        for (let i = 0; i < l; i++) {
+            // get color of pixel
+            const r = pixels[i*4]; // Red
+            const g = pixels[i*4+1]; // Green
+            const b = pixels[i*4+2]; // Blue
+            // const a = pixels[i*4+3]; // Alpha
+            if (r === 0 && g === 0 && b === 0) {
+                const y = (i / w);
+                const x = i - (y * w);
+                obstcl.push({x, y});
+            }
         }
-        // get the position of pixel
     }
 });
 
@@ -42,12 +65,13 @@ const rockets = document.getElementById("rockets");
 const fireBtn = document.getElementById("fire");
 const speed = document.getElementById("speed");
 
-
-fireBtn.addEventListener("click", (e) => {
-    console.log("clicked")
-    window.dispatchEvent(new KeyboardEvent("keydown", {key: " "}))
-})
-const distance = (pointA, pointB) => {
+if (fireBtn) {
+    fireBtn.addEventListener("click", (e) => {
+        console.log("clicked")
+        window.dispatchEvent(new KeyboardEvent("keydown", {key: " "}))
+    })
+}
+const distance = (pointA: {x: number, y: number}, pointB: {x: number, y: number}) => {
     return Math.floor(Math.sqrt((pointA.x - pointB.x) ** 2 + (pointA.y - pointB.y) ** 2));
 }
 const randomPosition = (rows = 30, columns = 26, blockSize = 10) => {
@@ -57,44 +81,46 @@ const randomPosition = (rows = 30, columns = 26, blockSize = 10) => {
 }
 
 class Ui {
-    constructor(blockSize = 10) {
-        this.blockSize = blockSize;
+    blockSize = 10;
+    constructor(blockSize?: number) {
+        this.blockSize = blockSize || 10;
     }
     update() {
         this.blockSize = this.blockSize;
     }
-    grid(context) {
+    grid(context: CanvasRenderingContext2D) {
         context.lineWidth = 1;
-        for (let x = 0; x < canvas.width; x += this.blockSize) {
+        for (let x = 0; x < canvas!.width; x += this.blockSize) {
             context.beginPath();
             context.strokeStyle = "#d3d3d3"
             context.moveTo(x, 0);
-            context.lineTo(x, canvas.height);
+            context.lineTo(x, canvas!.height);
             context.stroke();
         }
-        for (let y = 0; y < canvas.height; y += this.blockSize) {
+        for (let y = 0; y < canvas!.height; y += this.blockSize) {
             context.beginPath();
             context.moveTo(0, y);
-            context.lineTo(canvas.width, y);
+            context.lineTo(canvas!.width, y);
             context.stroke();
         }
     }
-    draw(context) {
+    draw(context: CanvasRenderingContext2D) {
         this.grid(context);
     }
 }
 
 class InputHandler {
-    constructor(game) {
+    game : Game;
+    constructor(game: Game) {
         this.game = game;
         window.addEventListener("keydown", e => {
             e.preventDefault();
-            this.changeDirection(e.key);
+            this.changeDirection(e.key as DirectionKeys);
             this.shoot(e.key);
         });
     }
-    changeDirection(key) {
-        const directions = {
+    changeDirection(key: DirectionKeys) {
+        const directions: {[key: string]: [number, number]} = {
             ArrowUp: [0, -1],
             ArrowDown: [0, 1],
             ArrowLeft: [-1, 0],
@@ -115,7 +141,7 @@ class InputHandler {
             }
         }
     }
-    shoot(key) {
+    shoot(key: string) {
         if (key === " " && (this.game.direction[0] || this.game.direction[1])) {
             this.game.snek.shoot();
         }
@@ -123,7 +149,11 @@ class InputHandler {
 }
 
 class Segment {
-    constructor(x, y, height, width) {
+    x = 0;
+    y = 0;
+    height = 0;
+    width = 0;
+    constructor(x: number, y: number, height: number, width: number) {
         this.x = x;
         this.y = y;
         this.height = height;
@@ -132,19 +162,24 @@ class Segment {
 }
 
 class Bullet {
-    constructor(x, y, gameObj ) {
+    x = 0;
+    y = 0;
+    height = 0;
+    width = 0;
+    game: {direction: [number, number], blockSize: number};
+    constructor(x: number, y: number, game: {direction: [number, number], blockSize: number} ) {
         this.x = x;
         this.y = y;
-        this.height = gameObj.blockSize;
-        this.width = gameObj.blockSize;
-        this.game = gameObj;
+        this.height = game.blockSize;
+        this.width = game.blockSize;
+        this.game = game;
     }
     update() {
-        const [directionX, directionY] = this.game.direction;
+        const [directionX, directionY] = this.game.direction!;
         this.x += (directionX * (this.game.blockSize + (this.game.blockSize / 4)));
         this.y += (directionY * (this.game.blockSize + (this.game.blockSize / 4)));
     }
-    draw(context) {
+    draw(context: CanvasRenderingContext2D) {
         context.fillStyle= "black";
         context.fillRect(this.x, this.y, this.height, this.width);
         context.strokeStyle = "white";
@@ -155,14 +190,18 @@ class Bullet {
 }
 
 class Obstacle {
-    constructor(x, y, gameObj) {
+    x = 0;
+    y = 0;
+    index = 0;
+    game: Game;
+    constructor(x: number, y: number, game: Game) {
         this.x = x;
         this.y = y;
         this.index = 0;
-        this.game = gameObj;
+        this.game = game;
     }
 
-    draw(context) {
+    draw(context: CanvasRenderingContext2D) {
         context.lineWidth = 2;
         context.strokeStyle = "#000000";
         context.strokeRect(this.x, this.y, this.game.blockSize, this.game.blockSize);
@@ -190,11 +229,13 @@ class Obstacle {
 }
 
 class Snek {
-    constructor(game) {
+    game: Game;
+    speed = 0;
+    head: Segment;
+    segments: Segment[] = [];
+    constructor(game: Game) {
         this.game = game;
-        this.speed = 0;
         this.head = new Segment(5 * this.game.blockSize, 10 * this.game.blockSize, this.game.blockSize, this.game.blockSize);
-        this.segments = [];
     }
 
     update() {
@@ -229,7 +270,7 @@ class Snek {
         }
     }
 
-    draw(context) {
+    draw(context: CanvasRenderingContext2D) {
         context.fillStyle = "#ffffff";
         context.strokeStyle = "#000000";
         for(let i = 0; i < this.segments.length; i++) {
@@ -242,33 +283,33 @@ class Snek {
         context.strokeRect(this.head.x, this.head.y, this.head.height, this.head.width);
     }
 
-    eat(food) {
+    eat(food: Food) {
         const head = this.head;
-        const d = distance(food, head);
+        const d = distance({x: food.x, y: food.y}, {x: head.x, y: head.y});
         const foodType = food.type;
         // touched food
         if (d === 0) {
             this.segments.push(new Segment(food.x, food.y, head.height, head.width));
             this.game.score += 1;
             food.randomPosition();
-            const s = +speed.innerText;
+            const s = +speed!.innerText;
             // check food type
             switch (foodType) {
                 case "normal":
                     // increase speed
                     if (this.game.stepInterval > 0) {
                         this.game.stepInterval -= 2;
-                        speed.innerText = s + 1;
+                        speed!.innerText = (s + 1).toString();
                     }
                 default:
                     break;
                 case "decreaseSpeed":
                     if (this.game.stepInterval > 50) {
                         this.game.stepInterval += 2;
-                        speed.innerText = s - 1;
+                        speed!.innerText = (s - 1).toString();
                     } else {
                         this.game.stepInterval += 10;
-                        speed.innerText = s - 5;
+                        speed!.innerText = (s - 5).toString();
                     }
                     break;
                 case "firePower":
@@ -276,7 +317,7 @@ class Snek {
                     // increase speed
                     if (this.game.stepInterval > 0) {
                         this.game.stepInterval -= 2;
-                        speed.innerText = s + 1;
+                        speed!.innerText = (s + 1).toString();
                     }
                     break;
             }
@@ -306,11 +347,12 @@ class Snek {
     }
 }
 class Food {
-    constructor(game) {
+    game: Game;
+    x = 0;
+    y = 0;
+    type = "normal";
+    constructor(game: Game) {
         this.game = game;
-        this.x = 0;
-        this.y = 0;
-        this.type = "normal";
         this.randomPosition();
     }
     update () {
@@ -324,7 +366,7 @@ class Food {
             }
         }
     }
-    draw(context) {
+    draw(context: CanvasRenderingContext2D) {
         switch (this.type) {
             case "normal":
             default:
@@ -375,25 +417,32 @@ class Food {
 }
 
 class Game {
-    constructor(rows, columns, width, height, blockSize) {
+    blockSize = 10;
+    rows = 0;
+    columns = 0;
+    width = 0;
+    height = 0;
+    obstacles: Obstacle[] = [];
+    bullets: Bullet[] = [];
+    snek: Snek;
+    food: Food;
+    input: InputHandler;
+    direction: [number, number] = [0, 0];
+    availableBullets = 3;
+    score = 0;
+    timeToNextStep = 0;
+    stepInterval = 200;
+    lastTime = 0;
+    constructor(rows: number, columns: number, width: number, height: number, blockSize: number) {
         this.blockSize = blockSize
         this.rows = rows;
         this.columns = columns;
         this.width = width;
         this.height = height
         this.obstacles = this.createObstacles();
-        this.bullets = [];
         this.snek = new Snek(this);
         this.food = new Food(this);
         this.input = new InputHandler(this);
-        this.direction = [0, 0];
-        this.availableBullets = 3;
-        this.score = 0;
-        this.timeToNextStep = 0;
-        this.stepInterval = 200;
-        this.lastTime = 0;
-        
-        
     }
     update() {
         this.snek.update();
@@ -413,7 +462,7 @@ class Game {
             return true;
         })
     }
-    draw(context) {
+    draw(context: CanvasRenderingContext2D) {
         this.snek.draw(context);
         this.food.draw(context);
         for(const [index, obstacle] of this.obstacles.entries()) {
@@ -442,14 +491,13 @@ class Game {
         this.bullets = [];
         this.snek.head.x += 5*this.blockSize;
         this.snek.head.y += 3*this.blockSize;
-        speed.innerText = 0;
+        speed!.innerText = "0";
         this.createObstacles();
         this.update()
     }
 }
 
 window.addEventListener("load", function() {
-    const canvas = document.getElementById("canvas");
     const blockSize = 12;
     const rows = 30;
     const columns = 26;
@@ -466,22 +514,22 @@ window.addEventListener("load", function() {
     const game = new Game(rows, columns, canvas.width, canvas.height, blockSize);
 
     function gameLoop (timestamp = 0) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx!.clearRect(0, 0, canvas.width, canvas.height);
         let deltaTime = timestamp - game.lastTime;
         game.lastTime = timestamp;
         game.timeToNextStep += deltaTime;
-        ui.draw(ctx);
-        game.draw(ctx);
+        ui.draw(ctx!);
+        game.draw(ctx!);
        
         if(game.timeToNextStep > game.stepInterval) {
             game.update();
             game.timeToNextStep = 0;
-            score.innerText = game.score;
-            rockets.innerText = game.availableBullets;
+            score!.innerText = game.score.toString();
+            rockets!.innerText = game.availableBullets.toString();
             if (game.availableBullets > 0 && (game.direction[0] || game.direction[1])) {
-                fireBtn.style.visibility = "visible";
+                fireBtn!.style.visibility = "visible";
             } else {
-                fireBtn.style.visibility = "hidden";
+                fireBtn!.style.visibility = "hidden";
             }
             
         }
