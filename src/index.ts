@@ -22,12 +22,20 @@ window.addEventListener("v-joystick", (e: any) => {
   }
 })
 
+const imgs = [
+    new URL('./imgs/0.png', import.meta.url).href,
+    new URL('./imgs/1.png', import.meta.url).href, 
+    new URL('./imgs/2.png', import.meta.url).href,
+    new URL('./imgs/3.png', import.meta.url).href,
+    new URL('./imgs/4.png', import.meta.url).href,
+    new URL('./imgs/5.png', import.meta.url).href,
+    new URL('./imgs/6.png', import.meta.url).href,
+]
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
 const img = new Image();
-img.crossOrigin = "Anonymous";
-img.src = `./src/imgs/${getRandomInt(0, 10)}.png`;
+img.src = imgs[getRandomInt(0, 6)];
 const obstcl: Coord[] = [];
 
 img.addEventListener("load", () => {
@@ -313,7 +321,7 @@ class Snek {
                     }
                     break;
                 case "firePower":
-                    this.game.availableBullets = 3;
+                    this.game.availableBullets += 5;
                     // increase speed
                     if (this.game.stepInterval > 0) {
                         this.game.stepInterval -= 2;
@@ -428,7 +436,7 @@ class Game {
     food: Food;
     input: InputHandler;
     direction: [number, number] = [0, 0];
-    availableBullets = 3;
+    availableBullets = 10;
     score = 0;
     timeToNextStep = 0;
     stepInterval = 200;
@@ -486,8 +494,8 @@ class Game {
         this.snek.segments = [];
         this.direction = [0, 0];
         this.score = 0;
-        this.stepInterval = 100;
-        this.availableBullets = 0;
+        this.stepInterval = 200;
+        this.availableBullets = 10;
         this.bullets = [];
         this.snek.head.x += 5*this.blockSize;
         this.snek.head.y += 3*this.blockSize;

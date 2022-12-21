@@ -4,4 +4,6 @@ import { defineConfig, splitVendorChunkPlugin } from "vite";
 export default defineConfig({
     //publicDir: path.resolve(__dirname, "src/assets"),
     base: "/snek/",
+    root: "./",
+    publicDir: "public",
 });
