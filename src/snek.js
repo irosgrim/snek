@@ -116,7 +116,7 @@ class InputHandler {
         }
     }
     shoot(key) {
-        if (key === " ") {
+        if (key === " " && (this.game.direction[0] || this.game.direction[1])) {
             this.game.snek.shoot();
         }
     }
@@ -386,11 +386,11 @@ class Game {
         this.snek = new Snek(this);
         this.food = new Food(this);
         this.input = new InputHandler(this);
-        this.direction = [1, 0];
+        this.direction = [0, 0];
         this.availableBullets = 3;
         this.score = 0;
         this.timeToNextStep = 0;
-        this.stepInterval = 100;
+        this.stepInterval = 200;
         this.lastTime = 0;
         
         
@@ -478,7 +478,7 @@ window.addEventListener("load", function() {
             game.timeToNextStep = 0;
             score.innerText = game.score;
             rockets.innerText = game.availableBullets;
-            if (game.availableBullets > 0) {
+            if (game.availableBullets > 0 && (game.direction[0] || game.direction[1])) {
                 fireBtn.style.visibility = "visible";
             } else {
                 fireBtn.style.visibility = "hidden";

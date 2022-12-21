@@ -97,6 +97,7 @@ class VirtualJoyStick {
       let startY = 0;
 
       document.addEventListener('touchstart', e => {
+        e.preventDefault();
         this.isTouching = true;
         touchRadius.x = e.touches[0].radiusX;
         touchRadius.y = e.touches[0].radiusY;
@@ -125,6 +126,7 @@ class VirtualJoyStick {
       })
 
       document.addEventListener('touchmove', (e) => {
+        e.preventDefault();
         const smallCircle = {
           x: e.changedTouches[0].pageX - smallCircleRadius - touchRadius.x,
           y: e.changedTouches[0].pageY - smallCircleRadius - touchRadius.y,
