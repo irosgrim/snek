@@ -44,8 +44,7 @@ const fireBtn = document.getElementById("fire");
 const speed = document.getElementById("speed");
 
 if (fireBtn) {
-    fireBtn.addEventListener("click", (e) => {
-        console.log("clicked")
+    fireBtn.addEventListener("click", () => {
         window.dispatchEvent(new KeyboardEvent("keydown", {key: " "}))
     })
 }
@@ -291,7 +290,7 @@ class Snek {
                     }
                     break;
                 case "firePower":
-                    this.game.availableBullets = 3;
+                    this.game.availableBullets += 5;
                     // increase speed
                     if (this.game.stepInterval > 0) {
                         this.game.stepInterval -= 2;
@@ -406,7 +405,7 @@ class Game {
     food: Food;
     input: InputHandler;
     direction: [number, number] = [0, 0];
-    availableBullets = 3;
+    availableBullets = 10;
     score = 0;
     timeToNextStep = 0;
     stepInterval = 200;
@@ -464,8 +463,8 @@ class Game {
         this.snek.segments = [];
         this.direction = [0, 0];
         this.score = 0;
-        this.stepInterval = 100;
-        this.availableBullets = 0;
+        this.stepInterval = 200;
+        this.availableBullets = 10;
         this.bullets = [];
         this.snek.head.x += 5*this.blockSize;
         this.snek.head.y += 3*this.blockSize;

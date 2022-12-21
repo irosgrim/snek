@@ -209,7 +209,7 @@ class VirtualJoyStick {
         this.showDebug();
       });
 
-      document.addEventListener('touchend', e => {
+      document.addEventListener('touchend', () => {
         if (circle && circleBg) {
           document.body.style.overflow = "auto";
           circle.style.visibility = "hidden"
@@ -233,7 +233,6 @@ class VirtualJoyStick {
     if (debug && this.options.debug === true) {
       let out = "";
       for (const prop in this.eventPayload) {
-        const p = document.createElement("p");
         out += `<p>${prop}: ${JSON.stringify(this.eventPayload[prop])}</p>`;
       }
       debug.innerHTML = out;

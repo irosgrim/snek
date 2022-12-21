@@ -26,12 +26,13 @@ window.addEventListener("v-joystick", (e: any) => {
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
 const img = new Image();
+img.crossOrigin = "Anonymous";
 img.src = `./src/imgs/${getRandomInt(0, 10)}.png`;
 const obstcl: Coord[] = [];
 
 img.addEventListener("load", () => {
     const loadImageCanvas = document.getElementById("load-image-canvas") as HTMLCanvasElement;
-    const ctx2 = loadImageCanvas && loadImageCanvas.getContext("2d");
+    const ctx2 = loadImageCanvas.getContext("2d");
     
     if (ctx2) {
         loadImageCanvas.width = img.width;
@@ -51,7 +52,7 @@ img.addEventListener("load", () => {
             const b = pixels[i*4+2]; // Blue
             // const a = pixels[i*4+3]; // Alpha
             if (r === 0 && g === 0 && b === 0) {
-                const y = (i / w);
+                const y = Math.trunc(i / w);
                 const x = i - (y * w);
                 obstcl.push({x, y});
             }
@@ -66,8 +67,7 @@ const fireBtn = document.getElementById("fire");
 const speed = document.getElementById("speed");
 
 if (fireBtn) {
-    fireBtn.addEventListener("click", (e) => {
-        console.log("clicked")
+    fireBtn.addEventListener("click", () => {
         window.dispatchEvent(new KeyboardEvent("keydown", {key: " "}))
     })
 }
