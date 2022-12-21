@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/snek/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snek</title>
+    <script type="module" crossorigin src="/snek/assets/index-3f3a3005.js"></script>
+    <link rel="stylesheet" href="/snek/assets/index-afc055e8.css">
+  </head>
+  <body>
+    <div class="container">
+        <h1 class="pixel-font">Snek</h1>
+        <div class="d-flex justify-content-between px-2">
+        </div>
+        <div class="main">
+            <div class="stats">
+                <p class="pixel-font small-font">Rockets: <span id="rockets">0</span></p>
+                <p class="pixel-font small-font">Speed: <span id="speed">0</span></p>
+                <p class="pixel-font small-font">Score: <span id="score">0</span></p>
+            </div>
+            <canvas id="canvas"></canvas>
+            <canvas id="load-image-canvas" style="display: none;"></canvas>
+        </div>
+        <div>
+            <ul>
+                <li>&leftarrow; &uparrow; &downarrow; &rightarrow; keys or swipe to change direction</li>
+            </ul>
+        </div>
+        <button id="fire" class="fire">fire</button>
+   </div>
+   <div>
+   </div>
+    
+  </body>
+</html>
