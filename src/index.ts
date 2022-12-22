@@ -35,7 +35,7 @@ const imgs = [
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
 const img = new Image();
-img.src = imgs[getRandomInt(0, 6)];
+img.src = imgs[getRandomInt(0, imgs.length - 1)];
 const obstcl: Coord[] = [];
 
 img.addEventListener("load", () => {
@@ -58,8 +58,9 @@ img.addEventListener("load", () => {
             const r = pixels[i*4]; // Red
             const g = pixels[i*4+1]; // Green
             const b = pixels[i*4+2]; // Blue
-            // const a = pixels[i*4+3]; // Alpha
-            if (r === 0 && g === 0 && b === 0) {
+            const a = pixels[i*4+3]; // Alpha
+            // get black pixel coords
+            if (r === 0 && g === 0 && b === 0 && a === 255) {
                 const y = Math.trunc(i / w);
                 const x = i - (y * w);
                 obstcl.push({x, y});
@@ -228,9 +229,15 @@ class Obstacle {
         for (const bullet of this.game.bullets) {
             const d2 = distance(bullet, this);
             if (d2 <= this.game.blockSize/2) {
-                this.game.score += 2;
-                this.game.obstacles.splice(this.index, 1);
-                this.game.bullets = [];
+                for (const [index, obs] of this.game.obstacles.entries()) {
+                    const distanceToOtherObstacles = distance(this, obs);
+                    if (distanceToOtherObstacles >= 0  && distanceToOtherObstacles <= this.game.blockSize * 2) {
+                        this.game.obstacles.splice(index, 1);
+                        this.game.score += 2;
+                        // this.game.obstacles.splice(this.index, 1);
+                        this.game.bullets = [];
+                    }
+                } 
             }
         }
     }
