@@ -99,7 +99,7 @@ class VirtualJoyStick {
             let startX = 0;
             let startY = 0;
 
-            document.addEventListener('touchstart', e => {
+            document.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 
                 if (circle && circleBg) {
@@ -131,93 +131,93 @@ class VirtualJoyStick {
             })
 
             document.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const smallCircle = {
-                x: e.changedTouches[0].pageX - smallCircleRadius - touchRadius.x,
-                y: e.changedTouches[0].pageY - smallCircleRadius - touchRadius.y,
-            }
-            const d = this.distance(this.touchStartCenter, {x: smallCircle.x, y: smallCircle.y});
-            const angle = Math.atan2(smallCircle.y - this.touchStartCenter.y, smallCircle.x - this.touchStartCenter.x);
-            if (d > bigCircleRadius) {
-                const smallCircleX = this.touchStartCenter.x + bigCircleRadius * Math.cos(angle);
-                const smallCircleY = this.touchStartCenter.y + bigCircleRadius * Math.sin(angle);
-
-                circle.style.left = smallCircleX + "px";
-                circle.style.top = smallCircleY + "px";
-            } else {
-                circle.style.top = smallCircle.y + "px";
-                circle.style.left = smallCircle.x + "px";
-            }
-
-            const endX = e.changedTouches[0].screenX;
-            const endY = e.changedTouches[0].screenY;
-            const deltaX = endX - startX;
-            const deltaY = endY - startY;
-
-            // moved horizontally
-            if (Math.abs(deltaX) > Math.abs(deltaY) + this.threshold) {
-                this.direction.x = deltaX > this.threshold ? 1 : deltaX < -this.threshold ? -1 : 0;
-                this.direction.y = deltaY > this.threshold ? 1 : deltaY < -this.threshold ? -1 : 0;
-                if (deltaX < 0) {
-                    this.move.x = -1;
-                    this.move.y = 0;
-                } else {
-                    this.move.x = 1;
-                    this.move.y = 0;
+                e.preventDefault();
+                const smallCircle = {
+                    x: e.changedTouches[0].pageX - smallCircleRadius - touchRadius.x,
+                    y: e.changedTouches[0].pageY - smallCircleRadius - touchRadius.y,
                 }
-            }
-            // moved vertically
-            else if (Math.abs(deltaX) + this.threshold < Math.abs(deltaY)) {
-                this.direction.y = deltaY > this.threshold ? -1 : deltaY < -this.threshold ? 1 : 0;
-                this.direction.x = deltaX > this.threshold ? -1 : deltaX < -this.threshold ? 1 : 0;
-                if (deltaY < 0) {
-                    this.move.y = -1;
-                    this.move.x = 0;
-                } else {
-                    this.move.y = 1;
-                    this.move.x = 0;
-                }
-            } 
-            else {
-                this.move.x = 0;
-                this.move.y = 0;
-                this.direction.x = 0;
-                this.direction.y = 0;
-            }
+                const d = this.distance(this.touchStartCenter, {x: smallCircle.x, y: smallCircle.y});
+                const angle = Math.atan2(smallCircle.y - this.touchStartCenter.y, smallCircle.x - this.touchStartCenter.x);
+                if (d > bigCircleRadius) {
+                    const smallCircleX = this.touchStartCenter.x + bigCircleRadius * Math.cos(angle);
+                    const smallCircleY = this.touchStartCenter.y + bigCircleRadius * Math.sin(angle);
 
-            if (this.move.x > 0) {
-                this.readableDirection = "right";
-                window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}));
-            }
-            if (this.move.x < 0) {
-                this.readableDirection = "left";
-                window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowLeft"}));
-            }
-            if (this.move.y > 0) {
-                this.readableDirection = "down";
-                window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowDown"}));
-            }
-            if (this.move.y < 0) {
-                this.readableDirection = "up";
-                window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowUp"}));
-            }
-            if (this.move.x === 0 && this.move.y === 0) {
-                this.readableDirection = "center";
-                // window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowUp"}));
-            }
-            this.dispatchEvent();
-            this.showDebug();
+                    circle.style.left = smallCircleX + "px";
+                    circle.style.top = smallCircleY + "px";
+                } else {
+                    circle.style.top = smallCircle.y + "px";
+                    circle.style.left = smallCircle.x + "px";
+                }
+
+                const endX = e.changedTouches[0].screenX;
+                const endY = e.changedTouches[0].screenY;
+                const deltaX = endX - startX;
+                const deltaY = endY - startY;
+
+                // moved horizontally
+                if (Math.abs(deltaX) > Math.abs(deltaY) + this.threshold) {
+                    this.direction.x = deltaX > this.threshold ? 1 : deltaX < -this.threshold ? -1 : 0;
+                    this.direction.y = deltaY > this.threshold ? 1 : deltaY < -this.threshold ? -1 : 0;
+                    if (deltaX < 0) {
+                        this.move.x = -1;
+                        this.move.y = 0;
+                    } else {
+                        this.move.x = 1;
+                        this.move.y = 0;
+                    }
+                }
+                // moved vertically
+                else if (Math.abs(deltaX) + this.threshold < Math.abs(deltaY)) {
+                    this.direction.y = deltaY > this.threshold ? -1 : deltaY < -this.threshold ? 1 : 0;
+                    this.direction.x = deltaX > this.threshold ? -1 : deltaX < -this.threshold ? 1 : 0;
+                    if (deltaY < 0) {
+                        this.move.y = -1;
+                        this.move.x = 0;
+                    } else {
+                        this.move.y = 1;
+                        this.move.x = 0;
+                    }
+                } 
+                else {
+                    this.move.x = 0;
+                    this.move.y = 0;
+                    this.direction.x = 0;
+                    this.direction.y = 0;
+                }
+
+                if (this.move.x > 0) {
+                    this.readableDirection = "right";
+                    window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight"}));
+                }
+                if (this.move.x < 0) {
+                    this.readableDirection = "left";
+                    window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowLeft"}));
+                }
+                if (this.move.y > 0) {
+                    this.readableDirection = "down";
+                    window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowDown"}));
+                }
+                if (this.move.y < 0) {
+                    this.readableDirection = "up";
+                    window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowUp"}));
+                }
+                if (this.move.x === 0 && this.move.y === 0) {
+                    this.readableDirection = "center";
+                    // window.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowUp"}));
+                }
+                this.dispatchEvent();
+                this.showDebug();
             });
 
             document.addEventListener('touchend', () => {
-            if (circle && circleBg) {
-                document.body.style.overflow = "auto";
-                circle.style.visibility = "hidden"
-                circleBg.style.visibility = "hidden"
-                this.isTouching = false;
-                this.dispatchEvent();
-                this.showDebug();
-            }
+                if (circle && circleBg) {
+                    document.body.style.overflow = "auto";
+                    circle.style.visibility = "hidden"
+                    circleBg.style.visibility = "hidden"
+                    this.isTouching = false;
+                    this.dispatchEvent();
+                    this.showDebug();
+                }
             })
         }
     }
